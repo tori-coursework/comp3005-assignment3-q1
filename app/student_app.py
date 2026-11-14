@@ -27,6 +27,53 @@ def get_connection():
         print(f"Could not connect to the database:\n{error}")
         sys.exit(1)
         
+"""
+Function to ask for a text input from the user
+Returns the text value if valid, otherwise prompts again.
+"""
+def ask_for_text(prompt):
+    while True:
+        textvalue = input(prompt).strip()
+        
+        if textvalue:
+            return textvalue
+        print("Please enter a value.")
+        
+"""
+Function to ask for a integer input from the user
+Returns the integer value if valid, otherwise prompts again.
+"""
+def ask_for_int(prompt):
+    while True:
+        textvalue = input(prompt).strip()
+        
+        if textvalue.isdigit():
+            return int(textvalue)
+        print("Please enter a valid integer.")
+        
+"""
+Function to ask for a date input from the user using the format YYYY-MM-DD. 
+Returns None if the user enters nothing.
+"""
+def ask_for_date(prompt):
+    while True:
+        textvalue = input(prompt).strip()
+        
+        if not textvalue:
+            return None
+        
+        try:
+            year, month, day = map(int, textvalue.split("-"))
+            return date(year, month, day)
+        except ValueError:
+            print("Please enter a valid date in YYYY-MM-DD format.")
+
+"""
+Function to retrieve all students from the connected psql database.
+A cursor is used to execute the SQL query and fetch all rows from the students table. 
+The results are printed in a formatted table.
+Returns None if no students are found.
+"""
 def getAllStudents(conn):
     with conn.cursor() as cur:
         cur.execute("SELECT * FROM students ORDER BY student_id;")
@@ -41,6 +88,11 @@ def getAllStudents(conn):
     for studid, first, last, email, enrolled in rows:
         print(f"{studid:<6} {first:<10} {last:<10} {email:<28} {enrolled or '-'}")
         
+"""
+Function to add a new student to the connected psql database. 
+A cursor is used to execute the SQL query and insert the new student into the students table.
+The function takes the first name, last name, email, and enrollment date as parameters.
+"""
 def addStudent(conn, first_name, last_name, email, enrollment_date):
     try:
         with conn.cursor() as cur:
@@ -57,6 +109,11 @@ def addStudent(conn, first_name, last_name, email, enrollment_date):
         conn.rollback()
         print(f"The email '{email}' already exists.")
         
+"""
+Function to delete a student from the connected psql database given student ID.
+A cursor is used to execute the SQL query and delete the student from the students table.
+The function prints a message indicating whether the deletion was successful
+"""
 def deleteStudent(conn, student_id):
     with conn.cursor() as cur:
         cur.execute("DELETE FROM students WHERE student_id = %s;", (student_id,))
@@ -64,13 +121,37 @@ def deleteStudent(conn, student_id):
     conn.commit()
 
     if deleted == 0:
-        print(f"[ERROR] No student with ID {student_id}.")
+        print(f"No student with ID {student_id}.")
     else:
         print(f"Deleted student {student_id}.")
         
 def main():
     conn = get_connection()
-    print("Now connected to PostgreSQL.")
+    print("Now connected to PostgreSQL.\n")
+    
+    try:
+        while True:
+            print("1. Show all students")
+            print("2. Add a student")
+            print("3. Update a student email")
+            print("4. Delete a student")
+            print("0. Exit the Program")
+            choice = input("Choose: ").strip()
+
+            if choice == "1":
+                getAllStudents(conn)
+            elif choice == "2":
+                first = ask_for_text("First name: ")
+                last = ask_for_text("Last name: ")
+                email = ask_for_text("Email: ")
+                enrolled = ask_for_date("Enrollment date (YYYY-MM-DD, leave blank for none): ")
+                addStudent(conn, first, last, email, enrolled)
+            else:
+                print("Invalid option.")
+    finally:
+        conn.close()
+
+
 
 if __name__ == "__main__":
     main()
