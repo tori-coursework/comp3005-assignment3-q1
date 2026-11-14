@@ -178,11 +178,13 @@ def main():
             elif choice == "4":
                 student_id = ask_for_int("Student ID to delete: ")
                 deleteStudent(conn, student_id)
+            elif choice == "0":
+                print("Exiting the program.")
+                break
             else:
                 print("Invalid option.")
     finally:
         conn.close()
-
 
 
 if __name__ == "__main__":
