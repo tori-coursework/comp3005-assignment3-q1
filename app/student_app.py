@@ -1,5 +1,5 @@
 import sys, psycopg2
-from datetime import date, datetime
+from datetime import date
 from getpass import getpass
 
 # Global defaults for postgresql
@@ -25,3 +25,10 @@ def get_connection():
     except psycopg2.OperationalError as error:
         print(f"Could not connect to the database:\n{error}")
         sys.exit(1)
+        
+def main():
+    conn = get_connection()
+    print("Now connected to PostgreSQL.")
+
+if __name__ == "__main__":
+    main()
