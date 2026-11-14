@@ -110,9 +110,34 @@ def addStudent(conn, first_name, last_name, email, enrollment_date):
         print(f"The email '{email}' already exists.")
         
 """
+Function to update a student's email in the connected psql database given student ID and new email.
+A cursor is used to execute the SQL query and update a pre-existing student's email in the students table.
+The function prints a message indicating whether the update was successful or not.
+"""
+def updateStudentEmail(conn, student_id, new_email):
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE students SET email = %s WHERE student_id = %s;",
+                (new_email, student_id),
+            )
+            updated = cur.rowcount
+            
+        conn.commit()
+        
+        if updated == 0:
+            print(f"No student with ID {student_id}.")
+            
+        else:
+            print(f"Updated student {student_id} email to {new_email}.")
+    except errors.UniqueViolation:
+        conn.rollback()
+        print(f"The email '{new_email}' already exists. Use a different one")
+        
+"""
 Function to delete a student from the connected psql database given student ID.
 A cursor is used to execute the SQL query and delete the student from the students table.
-The function prints a message indicating whether the deletion was successful
+The function prints a message indicating whether the deletion was successful.
 """
 def deleteStudent(conn, student_id):
     with conn.cursor() as cur:
@@ -146,6 +171,13 @@ def main():
                 email = ask_for_text("Email: ")
                 enrolled = ask_for_date("Enrollment date (YYYY-MM-DD, leave blank for none): ")
                 addStudent(conn, first, last, email, enrolled)
+            elif choice == "3":
+                student_id = ask_for_int("Student ID to update: ")
+                new_email = ask_for_text("New email: ")
+                updateStudentEmail(conn, student_id, new_email)
+            elif choice == "4":
+                student_id = ask_for_int("Student ID to delete: ")
+                deleteStudent(conn, student_id)
             else:
                 print("Invalid option.")
     finally:
