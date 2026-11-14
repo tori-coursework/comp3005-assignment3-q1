@@ -6,11 +6,13 @@ from psycopg2 import errors
 # Global defaults for postgresql
 HOST = "localhost"
 PORT = 5432
-NAME = "students_db"
+NAME = "students"
 USER = "postgres"
 
-
-# Function to open a connection to the PostgreSQL database, password is asked at startup
+"""
+Function to open a connection to the PostgreSQL database using psycopg2.
+It uses global defaults set above.
+"""
 def get_connection():
     password = getpass("PostgreSQL password: ")
 
@@ -105,7 +107,9 @@ def addStudent(conn, first_name, last_name, email, enrollment_date):
             
         conn.commit()
         print(f"Added student with ID {new_id}.")
-    except errors.UniqueViolation:
+        
+    # This prevents duplicate emails
+    except errors.UniqueViolation: 
         conn.rollback()
         print(f"The email '{email}' already exists.")
         
@@ -127,9 +131,10 @@ def updateStudentEmail(conn, student_id, new_email):
         
         if updated == 0:
             print(f"No student with ID {student_id}.")
-            
         else:
             print(f"Updated student {student_id} email to {new_email}.")
+            
+    # This prevents duplicate emails
     except errors.UniqueViolation:
         conn.rollback()
         print(f"The email '{new_email}' already exists. Use a different one")
@@ -149,11 +154,17 @@ def deleteStudent(conn, student_id):
         print(f"No student with ID {student_id}.")
     else:
         print(f"Deleted student {student_id}.")
-        
+
+"""
+Main function to run the student management application. 
+It establishes a connection to the PostgreSQL database and provides a menu for the user to interact with.
+The user can view all students, add a new student, update a student's email, delete a student, or exit the program. 
+"""
 def main():
     conn = get_connection()
     print("Now connected to PostgreSQL.\n")
     
+    # Main loop
     try:
         while True:
             print("1. Show all students")
@@ -183,6 +194,7 @@ def main():
                 break
             else:
                 print("Invalid option.")
+                
     finally:
         conn.close()
 

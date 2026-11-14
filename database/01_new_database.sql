@@ -1,1 +1,1 @@
-CREATE DATABASE students_db;
+CREATE DATABASE students;

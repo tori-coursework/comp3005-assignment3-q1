@@ -5,8 +5,8 @@ A python app that connects to a PostgreSQL and performs CRUD operations on a `st
 ## Structure
 ```
 database/
-    01_create_database.sql    creates students_db
-    02_schema_and_data.sql    creates students table + initial data
+    01_create_database.sql    Creates students_db
+    02_schema_and_data.sql    Csreates students table + initial data
 app/
     students_app.py           The application
     requirements.txt         
